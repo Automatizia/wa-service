@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -283,8 +284,12 @@ func handleSendImage(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "failed to fetch image: " + err.Error()})
 	}
 	defer resp2.Body.Close()
+	imgData, err := io.ReadAll(resp2.Body)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "failed to read image: " + err.Error()})
+	}
 
-	uploaded, err := cl.Upload(context.Background(), resp2.Body, whatsmeow.MediaImage)
+	uploaded, err := cl.Upload(context.Background(), imgData, whatsmeow.MediaImage)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "upload failed: " + err.Error()})
 	}
