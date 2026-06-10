@@ -5,10 +5,8 @@ ENV GONOSUMDB=* GOPROXY=https://proxy.golang.org,direct
 RUN apk add --no-cache git
 
 WORKDIR /app
-COPY go.mod ./
-RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o wa-service .
+RUN go mod tidy && CGO_ENABLED=0 go build -ldflags="-s -w" -o wa-service .
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata
