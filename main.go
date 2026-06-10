@@ -49,7 +49,7 @@ func main() {
 	os.MkdirAll("/data", 0755)
 
 	dbLog := waLog.Stdout("DB", "WARN", true)
-	container, err := sqlstore.New(context.Background(), "sqlite", fmt.Sprintf("file:%s?_foreign_keys=on", dbPath), dbLog)
+	container, err := sqlstore.New(context.Background(), "sqlite", fmt.Sprintf("file:%s?_pragma=foreign_keys(1)", dbPath), dbLog)
 	if err != nil {
 		panic(err)
 	}
