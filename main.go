@@ -297,12 +297,12 @@ func handleSendImage(c *fiber.Ctx) error {
 	msg := &waProto.Message{
 		ImageMessage: &waProto.ImageMessage{
 			Caption:       proto.String(req.Caption),
-			Url:           proto.String(uploaded.URL),
+			URL:           proto.String(uploaded.URL),
 			DirectPath:    proto.String(uploaded.DirectPath),
 			MediaKey:      uploaded.MediaKey,
 			Mimetype:      proto.String("image/jpeg"),
-			FileEncSha256: uploaded.FileEncSHA256,
-			FileSha256:    uploaded.FileSHA256,
+			FileEncSHA256: uploaded.FileEncSHA256,
+			FileSHA256:    uploaded.FileSHA256,
 			FileLength:    proto.Uint64(uploaded.FileLength),
 		},
 	}
