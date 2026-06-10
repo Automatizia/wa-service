@@ -1,0 +1,4 @@
+.env
+/data/
+wa-service
+*.db
