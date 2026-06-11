@@ -284,7 +284,7 @@ p{font-size:13px;color:#8b949e;margin-bottom:24px}
 <div class="card">
   <h1>Conectar WhatsApp</h1>
   <p>Abre WhatsApp &gt; Dispositivos vinculados &gt; Vincular dispositivo</p>
-  <div id="qr-wrap"><img id="qr-img" src="/qr/image" alt="QR"/></div>
+  <div id="qr-wrap"><img id="qr-img" src="/wa/qr/image" alt="QR"/></div>
   <div id="status"><span class="dot orange"></span>Esperando escaneo...</div>
 </div>
 <script>
@@ -293,10 +293,10 @@ var st=document.getElementById('status');
 var dot=st.querySelector('.dot');
 function refresh(){
   var ts=new Date().getTime();
-  img.src='/qr/image?t='+ts;
+  img.src='/wa/qr/image?t='+ts;
 }
 function checkStatus(){
-  fetch('/status').then(r=>r.json()).then(function(d){
+  fetch('/wa/status').then(r=>r.json()).then(function(d){
     if(d.connected&&d.logged_in){
       dot.classList.remove('orange');
       st.innerHTML='<span class="dot"></span>Conectado: '+d.jid.split('@')[0];
