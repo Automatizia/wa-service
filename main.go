@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -131,16 +132,19 @@ func eventHandler(evt interface{}) {
 		if webhookURL == "" {
 			return
 		}
+		text := v.Message.GetConversation()
+		if text == "" {
+			text = v.Message.GetExtendedTextMessage().GetText()
+		}
 		payload, _ := json.Marshal(map[string]interface{}{
 			"type":      "message",
 			"from":      v.Info.Sender.String(),
 			"chat":      v.Info.Chat.String(),
 			"timestamp": v.Info.Timestamp.Unix(),
-			"text":      v.Message.GetConversation(),
+			"text":      text,
 			"is_group":  v.Info.IsGroup,
 		})
-		go http.Post(webhookURL, "application/json", nil)
-		_ = payload
+		go http.Post(webhookURL, "application/json", bytes.NewReader(payload))
 	case *events.Connected:
 		fmt.Println("WhatsApp connected")
 		qrMu.Lock()
