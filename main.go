@@ -18,6 +18,7 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
+	waStore "go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -47,6 +48,8 @@ func main() {
 	}
 
 	os.MkdirAll("/data", 0755)
+
+	waStore.SetOSInfo("Automatizia Wa", [3]uint32{1, 0, 0})
 
 	dbLog := waLog.Stdout("DB", "WARN", true)
 	container, err := sqlstore.New(context.Background(), "sqlite", fmt.Sprintf("file:%s?_pragma=foreign_keys(1)", dbPath), dbLog)
