@@ -71,6 +71,7 @@ func main() {
 	app.Get("/status", handleStatus)
 	app.Get("/qr", handleQR)
 	app.Get("/qr/image", handleQRImage)
+	app.Get("/qr-page", handleQRPage)
 	app.Post("/connect", handleConnect)
 	app.Post("/disconnect", handleDisconnect)
 	app.Post("/send/text", handleSendText)
@@ -256,6 +257,60 @@ type SendImageReq struct {
 	To      string `json:"to"`
 	URL     string `json:"url"`
 	Caption string `json:"caption"`
+}
+
+func handleQRPage(c *fiber.Ctx) error {
+	c.Set("Content-Type", "text/html; charset=utf-8")
+	return c.SendString(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>WhatsApp QR</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:32px;text-align:center;max-width:320px;width:100%}
+h1{font-size:18px;font-weight:600;margin-bottom:8px}
+p{font-size:13px;color:#8b949e;margin-bottom:24px}
+#qr-wrap{width:256px;height:256px;margin:0 auto 20px;border-radius:8px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center}
+#qr-img{width:256px;height:256px}
+#status{font-size:12px;color:#8b949e}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#238636;margin-right:6px;vertical-align:middle}
+.dot.orange{background:#d29922}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Conectar WhatsApp</h1>
+  <p>Abre WhatsApp &gt; Dispositivos vinculados &gt; Vincular dispositivo</p>
+  <div id="qr-wrap"><img id="qr-img" src="/qr/image" alt="QR"/></div>
+  <div id="status"><span class="dot orange"></span>Esperando escaneo...</div>
+</div>
+<script>
+var img=document.getElementById('qr-img');
+var st=document.getElementById('status');
+var dot=st.querySelector('.dot');
+function refresh(){
+  var ts=new Date().getTime();
+  img.src='/qr/image?t='+ts;
+}
+function checkStatus(){
+  fetch('/status').then(r=>r.json()).then(function(d){
+    if(d.connected&&d.logged_in){
+      dot.classList.remove('orange');
+      st.innerHTML='<span class="dot"></span>Conectado: '+d.jid.split('@')[0];
+      clearInterval(qrTimer);
+      clearInterval(stTimer);
+    }
+  }).catch(function(){});
+}
+var qrTimer=setInterval(refresh,20000);
+var stTimer=setInterval(checkStatus,5000);
+checkStatus();
+</script>
+</body>
+</html>`)
 }
 
 func handleSendImage(c *fiber.Ctx) error {
