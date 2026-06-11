@@ -287,29 +287,31 @@ p{font-size:13px;color:#8b949e;margin-bottom:24px}
 <div class="card">
   <h1>Conectar WhatsApp</h1>
   <p>Abre WhatsApp &gt; Dispositivos vinculados &gt; Vincular dispositivo</p>
-  <div id="qr-wrap"><img id="qr-img" src="/wa/qr/image" alt="QR"/></div>
-  <div id="status"><span class="dot orange"></span>Esperando escaneo...</div>
+  <div id="qr-wrap"><img id="qr-img" src="" alt="QR" style="display:none"/><div id="conn-msg" style="display:none;padding:20px;color:#3fb950;font-size:15px">&#10003; WhatsApp conectado</div></div>
+  <div id="status"><span class="dot orange"></span>Verificando...</div>
 </div>
 <script>
 var img=document.getElementById('qr-img');
 var st=document.getElementById('status');
-var dot=st.querySelector('.dot');
-function refresh(){
-  var ts=new Date().getTime();
-  img.src='/wa/qr/image?t='+ts;
+var connMsg=document.getElementById('conn-msg');
+var qrTimer,stTimer;
+function showConnected(jid){
+  img.style.display='none';connMsg.style.display='block';
+  st.innerHTML='<span class="dot"></span>Conectado: '+jid.split('@')[0];
+  clearInterval(qrTimer);clearInterval(stTimer);
+}
+function loadQR(){
+  var tmp=new Image();
+  tmp.onload=function(){img.src=tmp.src;img.style.display='block';connMsg.style.display='none';st.innerHTML='<span class="dot orange"></span>Esperando escaneo...';};
+  tmp.src='/wa/qr/image?t='+new Date().getTime();
 }
 function checkStatus(){
-  fetch('/wa/status').then(r=>r.json()).then(function(d){
-    if(d.connected&&d.logged_in){
-      dot.classList.remove('orange');
-      st.innerHTML='<span class="dot"></span>Conectado: '+d.jid.split('@')[0];
-      clearInterval(qrTimer);
-      clearInterval(stTimer);
-    }
+  fetch('/wa/status').then(function(r){return r.json();}).then(function(d){
+    if(d.connected&&d.logged_in){showConnected(d.jid);}else{loadQR();}
   }).catch(function(){});
 }
-var qrTimer=setInterval(refresh,20000);
-var stTimer=setInterval(checkStatus,5000);
+stTimer=setInterval(checkStatus,5000);
+qrTimer=setInterval(loadQR,20000);
 checkStatus();
 </script>
 </body>
